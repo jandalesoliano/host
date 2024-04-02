@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <h2 style="font-size: 28px; margin-bottom: 15px; padding-left:18%;">BISU ADMIN</h2>
+            <ul>
+                <li><a href="{% url 'admin-dashboard' %}" style="text-decoration: none; font-size: 18px;"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard</a></li>
+                <li><a href="{% url 'add-user' %}" style="text-decoration: none; font-size: 18px;"><i class="fas fa-user-plus fa-fw"></i> Add User</a></li>
+                <li><a href="{% url 'add-res' %}" style="text-decoration: none; font-size: 18px;"><i class="fas fa-chart-bar fa-fw"></i> Add Result</a></li>
+                <li>
+                    <form method="post" action="{% url 'admin-logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" name="logout" style="border: none; background-color: transparent; font-size: 18px;">
+                            <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            
+            <div class="insert-acc-container">
+                <h2>Add Student</h2>
+                
+                <!-- Alert for user addition success -->
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                        <script>
+                            // Function to show the alert message
+                            function showAlert(message) {
+                                alert("User Added successfully");
+                            }
+                            // Call the showAlert function after it's defined
+                            showAlert("{{ message }}");
+                        </script>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                
+                <form id="insert-acc-form" action="{% url 'handle-add-user' %}" method="post">
+                    {% csrf_token %} 
+                    <input type="text" name="application_idU" placeholder="Application ID" required />
+                    {% if form.application_idU.errors %}
+                    <span style="color: red;">{{ form.application_idU.errors }}</span>
+                    {% endif %}
+                    <input type="text" name="first_name" placeholder="First Name" required style="text-transform: capitalize;"/>
+                    {% if form.first_name.errors %}
+                    <span style="color: red;">{{ form.first_name.errors }}</span>
+                    {% endif %}
+                    <input type="text" name="last_name" placeholder="Last Name" required style="text-transform: capitalize;"/>
+                    {% if form.last_name.errors %}
+                    <span style="color: red;">{{ form.last_name.errors }}</span>
+                    {% endif %}
+                    <input type="text" name="middle_name" placeholder="Middle Name" required style="text-transform: capitalize;"/>
+                    {% if form.middle_name.errors %}
+                    <span style="color: red;">{{ form.middle_name.errors }}</span>
+                    {% endif %}
+                    <input type="text" name="course_applied" placeholder="Course Applied" required style="text-transform: uppercase;" />
+                    {% if form.course_applied.errors %}
+                    <span style="color: red;">{{ form.course_applied.errors }}</span>
+                    {% endif %}
+                    <input type="password" name="password" placeholder="Password" required />
+                    {% if form.password.errors %}
+                    <span style="color: red;">{{ form.password.errors }}</span>
+                    {% endif %}
+                    <div class="button-container">
+                        <button type="submit" class="add-button">Add User</button> 
+                    </div>
+                    </form>
+                    </div>
+                    <div class="user-list-container">
+                    <h2>Student List</h2>
+                        <table class="user-list-table">
+                          <thead>
+                            <tr>
+                              <th>Application ID</th>
+                              <th>First Name</th>
+                              <th>Last Name</th>
+                              <th>Middle Name</th>
+                              <th>Course Applied</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for user in users %}
+                            <tr>
+                            <td>{{ user.application_idU }}</td>
+                            <td>{{ user.first_name }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.middle_name }}</td>
+                            <td>{{ user.course_applied }}</td>
+                            <td class="action-buttons">
+                                <button class="edit-button">edit</button>
+                                <button class="edit-button">delete</button>
+                            </td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+        </div>
+    </div>
+    <script>
+       
+    </script>
+    
+</body>
+<style>
+    .dashboard-container {
+        display: flex;
+        height: 100vh;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .sidebar {
+        background-color:#2d3748;
+        color: #fff;
+        width: 240px;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+
+    }
+
+    .sidebar h2 {
+        font-family: "Staatliches", sans-serif;
+    }
+
+    .sidebar ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .sidebar ul li {
+        font-family: "Bebas Neue", sans-serif;
+        padding: 15px 20px;
+        cursor: pointer;
+        margin-bottom: 15px;
+        color: #fff; /* Set text color to white */
+    }
+
+    .sidebar ul li:hover {
+        background-color: #696086;
+    }
+
+    .content {
+        flex: 1;
+        padding: 20px;
+        margin-left: 240px;
+    }
+
+    .content h2 {
+        font-family: "Lalezar", system-ui;
+        color: #333;
+    }
+
+    .content p {
+        color: #666;
+    }
+
+
+    /* Styling for all buttons */
+    button, a {
+        padding: 10px 40px;
+        color: #fff;
+        border: none;
+        border-radius: 0px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover, a:hover {
+        background-color: #696086;
+    }
+
+    /* Styling for icons */
+    .fa {
+        margin-right: 10px;
+    }
+    
+    /* Adjust logout button background color */
+    button[name="logout"] {
+        background-color: transparent; /* Remove background color */
+    }
+    
+    button[name="logout"]:hover {
+        background-color: rgba(0, 0, 0, 0.1); /* Add hover background color */
+    }
+
+
+    <!-- this is the css of the Form -->
+
+    .insert-acc-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        width: 70%; /* Adjust the width as needed */
+        max-width: 400px; /* Set maximum width */
+        text-align: center;
+    }
+    
+    .insert-acc-container h2 {
+        margin-bottom: 20px;
+        text-align: center; /* Center the heading */
+    }
+    
+    .insert-acc-container form {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Keeps elements centered vertically */
+      }
+    
+      .insert-acc-container input {
+        margin-bottom: 10px; /* Remove margin for better alignment */
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 60%; /* Adjust input width as desired */
+        font-size: 17px;
+      }
+
+      .button-container {
+        /* Removed styles as they're handled by flexbox layout */
+        margin: 10px 20% 0 auto; /* Add spacing below inputs and center button horizontally */
+      }
+    
+      .insert-acc-container button {
+        padding: 10px 30px; /* Increase button width slightly */
+        color: #fff;
+        border: none;
+        border-radius: 0px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        background-color: #007bff; /* Adjust button background color */
+        margin: 10px auto 0 auto; /* Add spacing below inputs and center button horizontally */
+      }
+    
+      .insert-acc-container button:hover {
+        background-color: #0056b3; /* Adjust button hover background color */
+      }
+
+      .user-list-container {
+        width: 80%;
+        margin: 20px auto;
+        z-index: 0; /* Ensure result list is below other elements */
+        }
+        
+        .user-list-table {
+            width: 90%;
+            border-collapse: collapse;
+        }
+        
+        .user-list-table th, .result-list-table td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        
+        .user-list-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .user-list-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .user-list-table tr:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .user-list-table td {
+            text-align: center;
+        }
+    
+
+</style>
+</html>

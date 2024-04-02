@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <h2 style="font-size: 28px; margin-bottom: 15px; padding-left:18%;">BISU ADMIN</h2>
+            <ul>
+                <li><a href="{% url 'admin-dashboard' %}" style="text-decoration: none; font-size: 18px;"><i class="fas fa-tachometer-alt fa-fw"></i> Dashboard</a></li>
+                <li><a href="{% url 'add-user' %}" style="text-decoration: none; font-size: 18px;"><i class="fas fa-user-plus fa-fw"></i> Add User</a></li>
+                <li><a href="#" style="text-decoration: none; font-size: 18px;"><i class="fas fa-chart-bar fa-fw"></i> Add Result</a></li>
+                <li>
+                    <form method="post" action="{% url 'admin-logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" name="logout" style="border: none; background-color: transparent; font-size: 18px;">
+                            <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="insert-res-container">
+                <h2>Add Result</h2>
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                        <script>
+                            // Function to show the alert message
+                            function showAlert(message) {
+                                alert(message);
+                            }
+                            // Call the showAlert function after it's defined
+                            showAlert("{{ message }}");
+                        </script>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+
+                <form id="insert-res-form" action="{% url 'handle-add-res' %}" method="post">
+                    {% csrf_token %} 
+                    
+                        <input type="application_idR" id="application_idR" placeholder="Application ID" name="application_idR" required>
+                        {% if form.application_idR.errors %}
+                        <span style="color: red;">{{ form.application_idR.errors }}</span>
+                        {% endif %}
+                        <input type="verbco" id="verbco" name="verbal_Comprehension" placeholder="Verbal Comprehension" required>
+                        <input type="verbre" id="verbre" name="verbal_Reasoning" placeholder="Verbal Reasoning" required>
+                        <input type="figre" id="figre" name="figural_Reasoning" placeholder="Figural Reasoning" required>
+                        <input type="qualre" id="qualre" name="qualitative_Reasoning" placeholder="Qualitative Reasoning" required>
+                        <select id="status" name="status" required style="width: 61%; padding: 8px; border: 1px solid #ccc; font-size: 17px;">
+                            <option value="Qualified" required style= "font-size: 18px">Qualified</option>
+                            <option value="Not Qualified" required style= "font-size: 18px">Not Qualified</option>
+                        </select>
+                    <div class="button-container">
+                        <button type="submit" class="addres-button">Add Result</button>
+                    </div>
+                </form>
+            </div>
+            <div class="result-list-container">
+                <h2>Result List</h2>
+                <table class="result-list-table">
+            <thead>
+                <tr>
+                    <th>Application ID</th>
+                    <th>Verbal Comprehension</th>
+                    <th>Verbal Reasoning</th>
+                    <th>Figural Reasoning</th>
+                    <th>Qualitative Reasoning</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.application_idR }}</td>
+                    <td>{{ result.verbal_Comprehension }}</td>
+                    <td>{{ result.verbal_Reasoning }}</td>
+                    <td>{{ result.figural_Reasoning }}</td>
+                    <td>{{ result.qualitative_Reasoning }}</td>
+                    <td>{{ result.status }}</td>
+                    <td class="action-buttons">
+                        <button class="edit-button" data-result-id="{{ result.id }}">Edit</button>
+                        <button>Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        <script>
+        // Function to show the alert message
+        function showResultAlert() {
+            alert("Result added successfully!");
+        }
+    </script>
+
+</body>
+<style>
+    
+    .dashboard-container {
+        display: flex;
+        height: 100vh;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .sidebar {
+        background-color:#2d3748;
+        color: #fff;
+        width: 240px;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        z-index: 1;
+    }
+
+    .sidebar h2 {
+        font-family: "Staatliches", sans-serif;
+    }
+
+    .sidebar ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .sidebar ul li {
+        font-family: "Bebas Neue", sans-serif;
+        padding: 15px 20px;
+        cursor: pointer;
+        margin-bottom: 15px;
+        color: #fff; /* Set text color to white */
+    }
+
+    .sidebar ul li:hover {
+        background-color: #696086;
+    }
+
+    .content {
+        flex: 1;
+        padding: 20px;
+        margin-left: 240px;
+    }
+
+    .content h2 {
+        font-family: "Lalezar", system-ui;
+        color: #333;
+    }
+
+    .content p {
+        color: #666;
+    }
+
+    /* Styling for all buttons */
+    button, a {
+        padding: 10px 40px;
+        color: #fff;
+        border: none;
+        border-radius: 0px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover, a:hover {
+        background-color: #696086;
+    }
+
+    /* Styling for icons */
+    .fa {
+        margin-right: 10px;
+    }
+    
+    /* Adjust logout button background color */
+    button[name="logout"] {
+        background-color: transparent; /* Remove background color */
+    }
+    
+    button[name="logout"]:hover {
+        background-color: rgba(0, 0, 0, 0.1); /* Add hover background color */
+    }
+
+    .button-container {
+        /* Removed styles as they're handled by flexbox layout */
+        margin: 10px 20% 0 auto; /* Add spacing below inputs and center button horizontally */
+      }
+
+    <!-- this is the css of the Form -->
+
+    .insert-res-container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        text-align: center;
+        margin: 20px auto; /* Center horizontally */
+        z-index: 2; /* Ensure it's on top */
+    }
+    
+    .insert-res-container h2 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .insert-res-container form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .insert-res-container input {
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 60%;
+        font-size: 17px;
+    }
+    
+    .insert-res-container button {
+        padding: 10px 30px;
+        color: #fff;
+        border: none;
+        border-radius: 0px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        background-color: #007bff;
+        margin: 10px auto 0 auto;
+    }
+    
+    .insert-res-container button:hover {
+        background-color: #0056b3;
+    }
+    
+    #status {
+        font-size: inherit;
+        appearance: none;
+        width: 61%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+    
+    #status option {
+        font-size: inherit;
+        padding: 5px 10px;
+    }
+    
+    /* CSS for the result list */
+    .result-list-container {
+        width: 80%;
+        margin: 20px auto;
+        z-index: 0; /* Ensure result list is below other elements */
+    }
+    
+    .result-list-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .result-list-table th, .result-list-table td {
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    
+    .result-list-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    
+    .result-list-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .result-list-table tr:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .result-list-table td {
+        text-align: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+    }
+
+    .action-buttons button {
+        margin: 0 5px; /* Adjust margin between buttons if needed */
+    }
+</style>
+</html>

@@ -1,0 +1,349 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <button id="sidebar-toggle" class="sidebar-toggle-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="sidebar" id="sidebar">
+            <h2 style="font-size: 24px; margin-bottom:15px;">Dashboard</h2>
+            <ul>
+                <li><a href="{% url 'home' %}" style="font-size: 18px; text-decoration: none;"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="{% url 'result-page' %}" style="font-size: 18px; text-decoration: none;"><i class="fas fa-chart-bar"></i> Result</a></li>
+                <li>
+                    <form method="post" action="{% url 'user-logout' %}">
+                        {% csrf_token %}
+                        <button type="button" name="logout" style="border: none; background-color: transparent; font-size: 18px;" onclick="this.form.submit()">
+                            <i class="fas fa-sign-out-alt fa-fw"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <div class="content">
+            <h2 class="title">OLSAT RESULTS</h2>
+            <div class="container">
+               
+                <table>
+                    <tr>
+                        <td>Verbal</td>
+                        <td>Score</td>
+                        <td>Status:</td>
+                        <td>{{ st }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 30px;">Verbal Comprehension:</td>
+                        <td>{{ vc }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 30px;">Verbal Reasoning:</td>
+                        <td>{{ vr }}</td>
+                    </tr>
+                    <tr>
+                        <td>Non Verbal</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 30px;">Figural Reasoning:</td>
+                        <td>{{ fr }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 30px;">Qualitative Reasoning:</td>
+                        <td>{{ qr }}</td>
+                    </tr>
+                </table>
+            </div>
+            {% if st == "Qualified" %}
+                <button id="viewCoursesBtn" class="button" onclick="viewRecommendedCourses()">View Recommended Courses</button>
+                <!-- Container to display recommended courses -->
+                <div id="recommendedCourses" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <h2>Recommended Courses</h2>
+                        <table id="recommendedCoursesTable">
+                            <thead>
+                                <tr>
+                                    <th>Courses</th>
+                                    <th>Probability</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recommendedCoursesList"></tbody>
+                        </table>
+                        
+                    </div>
+                </div>
+            {% else %}
+                <button id="viewCoursesBtn" class="button" onclick="displayNotQualified()">View Recommended Courses</button>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+    <script>
+
+        function viewRecommendedCourses() {
+            fetch("{% url 'recommended_courses' %}")
+            .then(response => response.json())
+            .then(data => {
+                const recommendedCoursesList = document.getElementById('recommendedCoursesList');
+                recommendedCoursesList.innerHTML = '';
+                data.recommended_courses.forEach(course => {
+                    const row = `<tr><td>${course[0]}</td><td>${course[1].toFixed(2)}%</td></tr>`;
+                    recommendedCoursesList.innerHTML += row;
+                });
+                const recommendedCoursesModal = document.getElementById('recommendedCourses');
+                recommendedCoursesModal.style.display = 'block';
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            const recommendedCoursesModal = document.getElementById('recommendedCourses');
+            recommendedCoursesModal.style.display = 'none';
+        }
+
+        function displayNotQualified() {
+            alert("You are not Qualified, You can't use this feature");
+        }
+
+        const sidebarToggleBtn = document.getElementById("sidebar-toggle");
+        const sidebar = document.getElementById("sidebar");
+    
+        sidebarToggleBtn.addEventListener("click", () => {
+          sidebar.classList.toggle("sidebar-hidden");
+        });
+      </script>
+</body>
+<style>
+
+    #viewCoursesBtn {
+        padding: 10px 30px;
+        color: #fff;
+        background-color: #333;  /* Change background color */
+        border: none;
+        border-radius: 5px;  /* Add border radius for rounded corners */
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        position: absolute;  /* Position the button absolutely */
+        top: 55%;  /* Position vertically in the center */
+        transform: translateY(-50%);  /* Adjust vertical positioning */
+      }
+  
+      #viewCoursesBtn:hover {
+        background-color: #696086;
+      }
+    
+        /* Adjust list item styles */
+        #recommendedCoursesList li {
+        list-style: none; /* Remove list bullets */
+        margin-bottom: 10px; /* Add spacing between list items */
+        }
+    
+        .modal {
+            display: none; /* Initially hidden */
+            position: fixed; /* Stay in place when scrolling */
+            z-index: 1; /* Sit on top of other content */
+            padding-top: 100px; /* Adjust padding for content placement */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scrolling if modal content overflows */
+            background-color: rgba(0, 0, 0, 0.4); /* Transparent black background */
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center the modal content horizontally */
+            align-items: center; /* Center the modal content vertically */
+          }
+          
+          .modal-content {
+            background-color: #fff; /* Light background color */
+            margin: auto; /* Center the modal content within the modal */
+            padding: 20px; /* Adjust padding as needed */
+            border: 1px solid #ddd; /* Light border */
+            border-radius: 4px; /* Rounded corners for a softer look */
+            width: 60%; /* Adjust width as needed */
+            max-width: 600px; /* Set maximum width */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+            text-align: center; /* Center content by default (can be overridden) */
+          }
+          
+          .modal-content h2 {
+            font-family: Arial, sans-serif; /* Simple, clean font */
+            margin-bottom: 15px; /* Adjust spacing */
+            font-size: 20px; /* Adjust heading size */
+          }
+
+          .modal-content th {
+            font-family: "Bebas Neue", sans-serif; /* Simple, clean font */
+          }
+          
+          /* Close button styles */
+          .close {
+            color: #aaa; /* Light gray color */
+            float: right;
+            font-size: 28px; /* Larger font size for better visibility */
+            font-weight: bold;
+            cursor: pointer;
+          }
+          
+          .close:hover,
+          .close:focus {
+            color: black; /* Black on hover/focus */
+            text-decoration: none;
+          }
+
+        .dashboard-container {
+            display: flex;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .sidebar {
+            background-color: #2d3748;
+            color: #fff;
+            width: 250px;
+            display: absolute;
+            flex-direction: column;
+            align-items: flex-start;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            transition: transform 0.5s ease; /* Adding transition for sliding animation */
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-300px); /* Hide the sidebar */
+        }
+        
+        .sidebar-toggle-btn {
+            background-color: #2d3748;
+            position: fixed;
+            top: 9px;
+            left: 10px;
+            z-index: 20; /* Ensure it's above other elements */
+            transition: transform 0.5s ease; /* Adding transition for button animation */
+        }
+        
+        .sidebar-toggle-btn.active {
+            transform: translateX(250px); /* Move button to the right when sidebar is visible */
+        }
+        
+        .sidebar h2 {
+            font-family: "Staatliches", sans-serif;
+            padding-top:40px;
+            padding-left: 25%;
+            padding-bottom: 20px;
+        }
+        
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .sidebar ul li {
+            font-family: "Bebas Neue", sans-serif;
+            padding: 15px 20px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            color: #fff; /* Set text color to white */
+        }
+        
+        .sidebar ul li:hover {
+            background-color: #696086;
+        }
+    
+        .content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 100px;
+            text-align: center;            
+          }
+    
+        .content h2 {
+            font-family: "Ramabhadra", sans-serif;
+          
+            color: #333;
+        }
+        
+        .content p {
+            padding-left:25%;
+            color: #666;
+        }
+
+
+        /* Styling for all buttons */
+        button, a {
+            padding: 10px 40px;
+            color: #fff;
+            border: none;
+            border-radius: 0px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover, a:hover {
+            background-color: #696086;
+        }
+
+        /* Styling for icons */
+        .fa {
+            margin-right: 10px;
+        }
+        
+        /* Adjust logout button background color */
+        button[name="logout"] {
+            background-color: transparent; /* Remove background color */
+        }
+        
+        button[name="logout"]:hover {
+            background-color: rgba(0, 0, 0, 0.1); /* Add hover background color */
+        }
+
+
+
+        .content .container {
+            overflow-x: auto;
+            width: 100%;
+            margin: 0 auto;
+            display: flexbox;
+            align-items: center;
+            justify-content: center; /* Center the table within the container */
+          }
+      
+          table {
+            position: relative;  /* Remove the centering from the table itself */
+            width: auto;  /* Set width to auto for responsive behavior */
+            margin: 0 auto;  /* Center the table horizontally */
+          }
+      
+          td {
+            font-family: "Ramabhadra", sans-serif;
+            padding: 10px;
+          }
+
+    @media screen and (max-width: 600px) {
+
+        /* Adjust table font size and padding for smaller screens */
+        table {
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 6px;
+        }
+    }
+
+   
+</style>
+</html>
