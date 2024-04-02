@@ -1,13 +1,13 @@
 {
     "builds": [{
-        "src": "studentportal/wsgi.py",
+        "src": "studentPortal/wsgi.py",
         "use": "@vercel/python",
         "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
     }],
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "studentportal/wsgi.py"
+            "dest": "studentPortal/wsgi.py"
         }
     ]
 }
